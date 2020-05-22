@@ -1,9 +1,19 @@
 package cone.rocket;
 
 import android.graphics.Canvas;
+import android.util.Log;
 import android.view.SurfaceHolder;
 
 public class MainThread extends Thread {
+
+    int targetFPS = 60;
+    long averageFPS;
+    long startTime;
+    long timeMillis;
+    long waitTime;
+    long totalTime = 0;
+    int frameCount = 0;
+    long targetTime = 1000 / targetFPS;
 
     private SurfaceHolder surfaceHolder;
     private GameView gameView;
@@ -23,6 +33,7 @@ public class MainThread extends Thread {
     @Override
     public void run() {
         while (running) {
+            startTime = System.nanoTime();
             canvas = null;
 
             try {
@@ -41,6 +52,23 @@ public class MainThread extends Thread {
                         e.printStackTrace();
                     }
                 }
+            }
+
+            timeMillis = (System.nanoTime() - startTime) / 1000000;
+            waitTime = targetTime - timeMillis;
+
+            try {
+                this.sleep(waitTime);
+            } catch (Exception e) {}
+
+            totalTime += System.nanoTime() - startTime;
+            frameCount++;
+
+            if (frameCount == targetFPS) {
+                averageFPS = 1000 / ((totalTime / frameCount) / 1000000);
+                frameCount = 0;
+                totalTime = 0;
+                Log.d("MyApp",Long.toString(averageFPS));
             }
         }
     }
