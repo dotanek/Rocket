@@ -4,17 +4,20 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.util.Log;
+import android.graphics.Typeface;
+import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.SurfaceView;
 import android.view.SurfaceHolder;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-
-import cone.rocket.objects.Asteroid;
-import cone.rocket.objects.Obstacle;
+import cone.rocket.Options.ExitOption;
+import cone.rocket.Options.MenuOption;
+import cone.rocket.Options.PlayOption;
+import cone.rocket.Options.SettingsOption;
 import cone.rocket.objects.Rocket;
+
+import static cone.rocket.Constraints.SCREEN_HEIGHT;
+import static cone.rocket.Constraints.SCREEN_WIDTH;
 
 public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
@@ -22,112 +25,41 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
     private Rocket rocket;
     private Background background;
-    private ArrayList<Obstacle> obstacles;
-
+    private ObstacleManager obstacleManager;
+    private CollisionManager collisionManager;
     private boolean touch = false;
     private boolean gameOver = false;
+
+    private int highScore = 0;
+
+    PlayOption playOption;
+    SettingsOption settingsOption;
+    ExitOption exitOption;
+    MenuOption menuOption;
+
+    private enum STATE {
+        MENU,
+        SETTINGS,
+        GAME
+    };
+
+    private STATE state;
 
     private float lastX, lastY;
 
     public GameView(Context context) {
         super(context);
-
         thread = new MainThread(getHolder(), this);
         setFocusable(true);
-
         getHolder().addCallback(this);
 
-        background = new Background(getContext());
-        rocket = new Rocket(getContext());
-        obstacles = new ArrayList<Obstacle>();
-        obstacles.add(new Asteroid(getContext(),200,200));
-        obstacles.add(new Asteroid(getContext(),200,200));
-        obstacles.add(new Asteroid(getContext(),200,200));
+        background = new Background(getContext(),false);
+        state = STATE.MENU;
 
-        lastX = 0;
-        lastY = 0;
-    }
-
-    public void collisionObstaclesControl() {
-
-        for (int i = 0; i < obstacles.size(); i++) {
-            for (int j = 0; j < obstacles.size(); j++) {
-                if (i != j){
-                    Obstacle first = obstacles.get(i);
-                    Obstacle second = obstacles.get(j);
-
-                    double distance = Math.sqrt(Math.pow(first.getX() - second.getX(),2) + Math.pow(first.getY() - second.getY(),2));
-
-                    if (distance <= 200.0) {
-                        obstacles.remove(first);
-                        obstacles.remove(second);
-                        obstacles.add(new Asteroid(getContext(),200,200));
-                        obstacles.add(new Asteroid(getContext(),200,200));
-                        i -= 1;
-                        j -= 1;
-                    }
-                }
-            }
-        }
-    }
-
-    public boolean collisionRocketControl() {
-
-        for (int i = 0; i < obstacles.size(); i++) {
-            Obstacle obstacle = obstacles.get(i);
-
-            float oLeftX = obstacle.getX();
-            float oRightX = oLeftX + obstacle.getSizeX();
-            float oTopY = obstacle.getY();
-            float oBottomY = oTopY + obstacle.getSizeY();
-
-            float rLeftX = rocket.getX() + 50;
-            float rRightX = rLeftX + rocket.getSizeX() - 100;
-            float rTopY = rocket.getY();
-            float rBottomY = rTopY + rocket.getSizeY();
-
-            if (oLeftX <= rRightX && oRightX >= rLeftX ) {
-                if (oTopY <= rBottomY && oBottomY >= rTopY) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-
-    public void update() {
-
-        if (gameOver) {
-            background = new Background(getContext());
-            rocket = new Rocket(getContext());
-            obstacles = new ArrayList<Obstacle>();
-            obstacles.add(new Asteroid(getContext(),200,200));
-            obstacles.add(new Asteroid(getContext(),200,200));
-            obstacles.add(new Asteroid(getContext(),200,200));
-            gameOver = false;
-            return;
-        }
-
-        background.update();
-        rocket.update();
-
-        if (touch) {
-            rocket.move(lastX,lastY);
-        }
-
-        for (int i = 0; i < obstacles.size(); i++) {
-            Obstacle temp = obstacles.get(i);
-            temp.update();
-            if (temp.isBelowVision()) {
-                obstacles.remove(temp);
-                i -= 1;
-                obstacles.add(new Asteroid(getContext(),200,200));
-            }
-        }
-
-        //collisionObstaclesControl();
-        gameOver = collisionRocketControl();
+        playOption = new PlayOption(SCREEN_WIDTH/2 - 90,SCREEN_HEIGHT/2 - 120, SCREEN_WIDTH/2 + 90,SCREEN_HEIGHT/2 - 30);
+        settingsOption = new SettingsOption(SCREEN_WIDTH/2 - 150,SCREEN_HEIGHT/2 - 120 + 150, SCREEN_WIDTH/2 + 150,SCREEN_HEIGHT/2 - 30 + 150);
+        exitOption = new ExitOption(SCREEN_WIDTH/2 - 80,SCREEN_HEIGHT/2 - 120 + 300, SCREEN_WIDTH/2 + 80,SCREEN_HEIGHT/2 - 40 + 300);
+        menuOption = new MenuOption(40,30,180,100);
     }
 
     @Override
@@ -137,8 +69,10 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
-        thread.setRunning(true);
-        thread.start();
+        if (!thread.isAlive()) {
+            thread.setRunning(true);
+            thread.start();
+        }
     }
 
     @Override
@@ -151,7 +85,26 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+
             retry = false;
+        }
+    }
+
+    public void update() {
+
+        switch (state) {
+
+            case MENU:
+                updateMenu();
+                break;
+
+            case SETTINGS:
+                updateSettings();
+                break;
+
+            case GAME:
+                updateGame();
+                break;
         }
     }
 
@@ -160,37 +113,151 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
         if (canvas != null) {
 
-            background.draw(canvas);
-            rocket.draw(canvas);
+            switch (state) {
 
-            if (touch) {
-                Paint paint = new Paint();
-                paint.setColor(Color.rgb(255, 255, 255));
-                canvas.drawOval(lastX-50,lastY-50,lastX+50,lastY+50, paint);
+                case MENU:
+                    drawMenu(canvas);
+                    break;
+
+                case SETTINGS:
+                    drawSettings(canvas);
+                    break;
+
+                case GAME:
+                    drawGame(canvas);
+                    break;
             }
-
-            for (int i = 0; i < obstacles.size(); i++) {
-                Obstacle temp = obstacles.get(i);
-                temp.draw(canvas);
-            }
-
-            if (gameOver) {
-                Log.wtf("MyApp","Game Over!");
-            }
-
         }
     }
 
+    private void updateMenu() {
+        background.update();
+    }
+
+    private void drawMenu(Canvas canvas) {
+        background.draw(canvas);
+
+        Paint textPaint = new Paint();
+        textPaint.setColor(Color.WHITE);
+        textPaint.setTextAlign(Paint.Align.CENTER);
+
+        textPaint.setTextSize(30);
+        canvas.drawText("Highest level: " + Integer.toString(highScore),SCREEN_WIDTH/2,SCREEN_HEIGHT - 50, textPaint);
+
+        textPaint.setTextSize(200);
+        textPaint.setTypeface(Typeface.create("Arial", Typeface.BOLD));
+
+        canvas.drawText("Rocket", SCREEN_WIDTH/2, SCREEN_HEIGHT/2-200, textPaint);
+
+        playOption.draw(canvas);
+        settingsOption.draw(canvas);
+        exitOption.draw(canvas);
+    }
+
+    private void updateSettings() {
+
+    }
+
+    private void drawSettings(Canvas canvas) {
+
+    }
+
+    private void updateGame() {
+
+        if (touch) {
+            rocket.move(lastX,lastY);
+        }
+
+        if (obstacleManager.checkGameOver(rocket)) {
+            if(obstacleManager.getLevel() > highScore) {
+                highScore = (int) obstacleManager.getLevel();
+            }
+
+            background = new Background(getContext(),false);
+            state = STATE.MENU;
+        }
+
+        background.update();
+        obstacleManager.update();
+        obstacleManager.checkObstaclesBelow();
+        obstacleManager.checkObstaclesSpawn();
+    }
+
+    private void drawGame(Canvas canvas) {
+        background.draw(canvas);
+        rocket.draw(canvas);
+        obstacleManager.draw(canvas);
+
+        Paint paint = new Paint();
+        paint.setColor(Color.WHITE);
+        paint.setTextSize(40);
+        canvas.drawText("LEVEL " + Integer.toString((int) obstacleManager.getLevel()), SCREEN_WIDTH - 200, 80, paint);
+
+        if (touch) {
+            canvas.drawOval(lastX-50,lastY-50,lastX+50,lastY+50, paint);
+        }
+
+        menuOption.draw(canvas);
+    }
+
     public boolean onTouchEvent(MotionEvent e) {
-        // MotionEvent reports input details from the touch screen
-        // and other input controls. In this case, you are only
-        // interested in events where the touch position changed.
+
+        switch (state) {
+
+            case MENU:
+                menuTouch(e);
+                break;
+
+            case SETTINGS:
+                settingsTouch(e);
+                break;
+
+            case GAME:
+                gameTouch(e);
+                break;
+        }
+
+        return true;
+    }
+
+    public void menuTouch(MotionEvent e) {
+
+        boolean isReleased = e.getAction() == MotionEvent.ACTION_UP || e.getAction() == MotionEvent.ACTION_CANCEL;
+
+        float x = e.getX();
+        float y = e.getY();
+
+        if (isReleased) {
+            if (playOption.checkClick(x,y)) {
+                background = new Background(getContext(),true);
+                rocket = new Rocket(getContext());
+                collisionManager = new CollisionManager();
+                obstacleManager = new ObstacleManager(getContext());
+                obstacleManager.init();
+                lastX = 0;
+                lastY = 0;
+                state = STATE.GAME;
+            } else if (settingsOption.checkClick(x,y)) {
+                state = STATE.SETTINGS;
+            } else if (exitOption.checkClick(x,y)) {
+                android.os.Process.killProcess(android.os.Process.myPid());
+                System.exit(0);
+            }
+        }
+    }
+
+    public void gameTouch(MotionEvent e) {
 
         boolean isReleased = e.getAction() == MotionEvent.ACTION_UP || e.getAction() == MotionEvent.ACTION_CANCEL;
         boolean isPressed = e.getAction() == MotionEvent.ACTION_DOWN;
 
         lastX = e.getX();
         lastY = e.getY();
+
+        if (isReleased && menuOption.checkClick(lastX,lastY)) {
+            background = new Background(getContext(),false);
+            state = STATE.MENU;
+        }
 
         Paint paint = new Paint();
         paint.setColor(Color.rgb(255, 255, 255));
@@ -200,7 +267,9 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         } else if (isPressed) {
             touch = true;
         }
+    }
 
-        return true;
+    public void settingsTouch(MotionEvent e) {
+
     }
 }

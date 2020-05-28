@@ -1,37 +1,49 @@
 package cone.rocket;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 
+import static cone.rocket.Constraints.SCREEN_HEIGHT;
+import static cone.rocket.Constraints.SCREEN_WIDTH;
+
 public class Background {
 
-    int screenWidth = Resources.getSystem().getDisplayMetrics().widthPixels;
-    int screenHeight = Resources.getSystem().getDisplayMetrics().heightPixels;
-
     private int y;
-    private int velY;
+    private float velY;
 
     private Bitmap image;
 
-    private int fire = 0;
+    private boolean isPlaying;
 
-    public Background(Context context) {
-        image = BitmapFactory.decodeResource(context.getResources(),R.drawable.background_night_acc);
-        image = Bitmap.createScaledBitmap(image, screenWidth, screenHeight*2, false);
+    public Background(Context context, boolean isPlaying) {
+        this.isPlaying = isPlaying;
+
+        if (isPlaying) {
+            image = BitmapFactory.decodeResource(context.getResources(),R.drawable.background_dynamic);
+        } else {
+            image = BitmapFactory.decodeResource(context.getResources(),R.drawable.background_static);
+        }
+
+        image = Bitmap.createScaledBitmap(image, SCREEN_WIDTH, SCREEN_HEIGHT*2, false);
         velY = 20;
     }
 
     public void draw(Canvas canvas) {
-        canvas.drawBitmap(image, 0, y - screenHeight, null);
+        canvas.drawBitmap(image, 0, y - SCREEN_HEIGHT, null);
     }
 
     public void update() {
-        y += velY;
 
-        if (y >= screenHeight) {
+        if (isPlaying) {
+            y += velY;
+            velY += 0.005;
+        } else {
+            y += 2;
+        }
+
+        if (y >= SCREEN_HEIGHT) {
             y = 0;
         }
     }

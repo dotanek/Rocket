@@ -68,7 +68,7 @@ public class MainThread extends Thread {
                 averageFPS = 1000 / ((totalTime / frameCount) / 1000000);
                 frameCount = 0;
                 totalTime = 0;
-                Log.d("MyApp",Long.toString(averageFPS));
+                Log.d("Rocket fps",Long.toString(averageFPS));
             }
         }
     }
