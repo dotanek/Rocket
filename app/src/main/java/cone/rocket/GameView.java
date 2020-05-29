@@ -5,15 +5,11 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Typeface;
-import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.SurfaceView;
 import android.view.SurfaceHolder;
-
-import cone.rocket.Options.ExitOption;
-import cone.rocket.Options.MenuOption;
-import cone.rocket.Options.PlayOption;
-import cone.rocket.Options.SettingsOption;
+import cone.rocket.buttons.Button;
+import cone.rocket.buttons.Switch;
 import cone.rocket.objects.Rocket;
 
 import static cone.rocket.Constraints.SCREEN_HEIGHT;
@@ -32,10 +28,17 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
     private int highScore = 0;
 
-    PlayOption playOption;
-    SettingsOption settingsOption;
-    ExitOption exitOption;
-    MenuOption menuOption;
+
+    // ------------------- MENU ---------------------- //
+    private Button buttonBanner;
+    private Button buttonPlay;
+    private Button buttonSettings;
+    private Button buttonExit;
+    private Button buttonMenu;
+
+    // ------------------- SETTINGS ---------------------- //
+
+    private Switch switchTest;
 
     private enum STATE {
         MENU,
@@ -56,10 +59,18 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         background = new Background(getContext(),false);
         state = STATE.MENU;
 
-        playOption = new PlayOption(SCREEN_WIDTH/2 - 90,SCREEN_HEIGHT/2 - 120, SCREEN_WIDTH/2 + 90,SCREEN_HEIGHT/2 - 30);
-        settingsOption = new SettingsOption(SCREEN_WIDTH/2 - 150,SCREEN_HEIGHT/2 - 120 + 150, SCREEN_WIDTH/2 + 150,SCREEN_HEIGHT/2 - 30 + 150);
-        exitOption = new ExitOption(SCREEN_WIDTH/2 - 80,SCREEN_HEIGHT/2 - 120 + 300, SCREEN_WIDTH/2 + 80,SCREEN_HEIGHT/2 - 40 + 300);
-        menuOption = new MenuOption(40,30,180,100);
+
+        // ------------------- MENU ---------------------- //
+        buttonBanner =  new Button(SCREEN_WIDTH/2, SCREEN_HEIGHT/2 - 180, "ROCKET", 150, 0);
+        buttonPlay =  new Button(SCREEN_WIDTH/2, SCREEN_HEIGHT/2, "PLAY", 70, 30);
+        buttonSettings =  new Button(SCREEN_WIDTH/2, SCREEN_HEIGHT/2 + 150, "SETTINGS", 70, 30);
+        buttonExit =  new Button(SCREEN_WIDTH/2, SCREEN_HEIGHT/2 + 300, "EXIT", 70, 30);
+        buttonMenu =  new Button(110, 80, "MENU", 40, 20);
+        buttonMenu.getPaint().setTypeface(Typeface.create("Arial", Typeface.NORMAL));
+
+        // ------------------- SETTINGS ---------------------- //
+
+        switchTest = new Switch(SCREEN_WIDTH/2,SCREEN_HEIGHT/2,"SOME_SETTING", 70,20);
     }
 
     @Override
@@ -136,30 +147,25 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
     private void drawMenu(Canvas canvas) {
         background.draw(canvas);
+        buttonBanner.draw(canvas);
+        buttonPlay.draw(canvas);
+        buttonSettings.draw(canvas);
+        buttonExit.draw(canvas);
 
         Paint textPaint = new Paint();
         textPaint.setColor(Color.WHITE);
         textPaint.setTextAlign(Paint.Align.CENTER);
-
         textPaint.setTextSize(30);
         canvas.drawText("Highest level: " + Integer.toString(highScore),SCREEN_WIDTH/2,SCREEN_HEIGHT - 50, textPaint);
-
-        textPaint.setTextSize(200);
-        textPaint.setTypeface(Typeface.create("Arial", Typeface.BOLD));
-
-        canvas.drawText("Rocket", SCREEN_WIDTH/2, SCREEN_HEIGHT/2-200, textPaint);
-
-        playOption.draw(canvas);
-        settingsOption.draw(canvas);
-        exitOption.draw(canvas);
     }
 
     private void updateSettings() {
-
+        background.update();
     }
 
     private void drawSettings(Canvas canvas) {
-
+        background.draw(canvas);
+        switchTest.draw(canvas);
     }
 
     private void updateGame() {
@@ -197,7 +203,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
             canvas.drawOval(lastX-50,lastY-50,lastX+50,lastY+50, paint);
         }
 
-        menuOption.draw(canvas);
+        buttonMenu.draw(canvas);
     }
 
     public boolean onTouchEvent(MotionEvent e) {
@@ -228,7 +234,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         float y = e.getY();
 
         if (isReleased) {
-            if (playOption.checkClick(x,y)) {
+            if (buttonPlay.checkClick(x,y)) {
                 background = new Background(getContext(),true);
                 rocket = new Rocket(getContext());
                 collisionManager = new CollisionManager();
@@ -237,13 +243,15 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
                 lastX = 0;
                 lastY = 0;
                 state = STATE.GAME;
-            } else if (settingsOption.checkClick(x,y)) {
+            } else if (buttonSettings.checkClick(x,y)) {
                 state = STATE.SETTINGS;
-            } else if (exitOption.checkClick(x,y)) {
+            } else if (buttonExit.checkClick(x,y)) {
                 android.os.Process.killProcess(android.os.Process.myPid());
                 System.exit(0);
             }
         }
+
+
     }
 
     public void gameTouch(MotionEvent e) {
@@ -254,7 +262,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         lastX = e.getX();
         lastY = e.getY();
 
-        if (isReleased && menuOption.checkClick(lastX,lastY)) {
+        if (isReleased && buttonMenu.checkClick(lastX,lastY)) {
             background = new Background(getContext(),false);
             state = STATE.MENU;
         }
@@ -271,5 +279,17 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
     public void settingsTouch(MotionEvent e) {
 
+        boolean isReleased = e.getAction() == MotionEvent.ACTION_UP || e.getAction() == MotionEvent.ACTION_CANCEL;
+
+        float x = e.getX();
+        float y = e.getY();
+
+        if (isReleased) {
+            if (switchTest.checkClick(x,y)) {
+                switchTest.changeActive();
+            }
+        }
     }
+
+
 }
