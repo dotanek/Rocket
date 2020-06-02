@@ -30,15 +30,22 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
 
     // ------------------- MENU ---------------------- //
+
     private Button buttonBanner;
     private Button buttonPlay;
     private Button buttonSettings;
     private Button buttonExit;
-    private Button buttonMenu;
 
     // ------------------- SETTINGS ---------------------- //
 
-    private Switch switchTest;
+    private Switch switchSound;
+    private Switch switchVibrations;
+    private Switch switchAccelerometer;
+    private Switch switchGyroscope;
+    private Switch switchLights;
+    private Button buttonBack;
+
+    private Button buttonMenu;
 
     private enum STATE {
         MENU,
@@ -65,12 +72,18 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         buttonPlay =  new Button(SCREEN_WIDTH/2, SCREEN_HEIGHT/2, "PLAY", 70, 30);
         buttonSettings =  new Button(SCREEN_WIDTH/2, SCREEN_HEIGHT/2 + 150, "SETTINGS", 70, 30);
         buttonExit =  new Button(SCREEN_WIDTH/2, SCREEN_HEIGHT/2 + 300, "EXIT", 70, 30);
-        buttonMenu =  new Button(110, 80, "MENU", 40, 20);
-        buttonMenu.getPaint().setTypeface(Typeface.create("Arial", Typeface.NORMAL));
 
         // ------------------- SETTINGS ---------------------- //
 
-        switchTest = new Switch(SCREEN_WIDTH/2,SCREEN_HEIGHT/2,"SOME_SETTING", 70,20);
+        switchSound = new Switch(SCREEN_WIDTH/2,SCREEN_HEIGHT/2 - 300,"SOUND", 70,30);
+        switchVibrations = new Switch(SCREEN_WIDTH/2,SCREEN_HEIGHT/2 - 150,"VIBRATIONS", 70,30);
+        switchAccelerometer = new Switch(SCREEN_WIDTH/2,SCREEN_HEIGHT/2,"ACCELERPMETER", 70,30);
+        switchGyroscope = new Switch(SCREEN_WIDTH/2,SCREEN_HEIGHT/2 + 150,"GYROSCOPE", 70,30);
+        switchLights = new Switch(SCREEN_WIDTH/2,SCREEN_HEIGHT/2 + 300,"SMART LIGHTS", 70,30);
+        buttonBack = new Button(SCREEN_WIDTH/2, SCREEN_HEIGHT/2 + 450, "BACK", 70, 30);
+
+        buttonMenu =  new Button(110, 80, "MENU", 40, 20);
+        buttonMenu.getPaint().setTypeface(Typeface.create("Arial", Typeface.NORMAL));
     }
 
     @Override
@@ -165,7 +178,12 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
     private void drawSettings(Canvas canvas) {
         background.draw(canvas);
-        switchTest.draw(canvas);
+        switchSound.draw(canvas);
+        switchVibrations.draw(canvas);
+        switchAccelerometer.draw(canvas);
+        switchGyroscope.draw(canvas);
+        switchLights.draw(canvas);
+        buttonBack.draw(canvas);
     }
 
     private void updateGame() {
@@ -285,8 +303,20 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         float y = e.getY();
 
         if (isReleased) {
-            if (switchTest.checkClick(x,y)) {
-                switchTest.changeActive();
+            if (switchSound.checkClick(x,y)) {
+                switchSound.changeActive();
+            } else if (switchVibrations.checkClick(x,y)) {
+                switchVibrations.changeActive();
+            } else if (switchSound.checkClick(x,y)) {
+                switchSound.changeActive();
+            } else if (switchAccelerometer.checkClick(x,y)) {
+                switchAccelerometer.changeActive();
+            } else if (switchGyroscope.checkClick(x,y)) {
+                switchGyroscope.changeActive();
+            } else if (switchLights.checkClick(x,y)) {
+                switchLights.changeActive();
+            } else if (buttonBack.checkClick(x,y)) {
+                state = STATE.MENU;
             }
         }
     }
