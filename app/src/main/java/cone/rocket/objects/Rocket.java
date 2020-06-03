@@ -72,6 +72,24 @@ public class Rocket {
         x += velocityX;
     }
 
+    public void setX(float x) {
+        this.x = x;
+    }
+
+    public void setY(float y) {
+        this.y = y;
+    }
+
+    public void updateX(float change) {
+        x += change;
+
+        if(x < 0) {
+            x = 0;
+        } else if (x > SCREEN_WIDTH - sizeX) {
+            x = SCREEN_WIDTH - sizeX;
+        }
+    }
+
     public float getX() {
         return x;
     }

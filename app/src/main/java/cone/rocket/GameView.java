@@ -5,11 +5,15 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Typeface;
+import android.hardware.SensorEvent;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceView;
 import android.view.SurfaceHolder;
 import cone.rocket.buttons.Button;
 import cone.rocket.buttons.Switch;
+import cone.rocket.controls.AccelerometerController;
+import cone.rocket.controls.Controller;
 import cone.rocket.objects.Rocket;
 
 import static cone.rocket.Constraints.SCREEN_HEIGHT;
@@ -23,6 +27,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     private Background background;
     private ObstacleManager obstacleManager;
     private CollisionManager collisionManager;
+    private Controller controller;
     private boolean touch = false;
     private boolean gameOver = false;
 
@@ -40,10 +45,11 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
     private Switch switchSound;
     private Switch switchVibrations;
-    private Switch switchAccelerometer;
-    private Switch switchGyroscope;
     private Switch switchLights;
     private Button buttonBack;
+    private Button buttonControls;
+    private Button buttonControlType;
+    private Button buttonFeatures;
 
     private Button buttonMenu;
 
@@ -53,7 +59,14 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         GAME
     };
 
+    private enum CONTROLS {
+        NONE,
+        ACCELEROMETER,
+        GYROSCOPE
+    };
+
     private STATE state;
+    private CONTROLS controls;
 
     private float lastX, lastY;
 
@@ -65,7 +78,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
         background = new Background(getContext(),false);
         state = STATE.MENU;
-
+        controls = CONTROLS.NONE;
 
         // ------------------- MENU ---------------------- //
         buttonBanner =  new Button(SCREEN_WIDTH/2, SCREEN_HEIGHT/2 - 180, "ROCKET", 150, 0);
@@ -75,12 +88,13 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
         // ------------------- SETTINGS ---------------------- //
 
-        switchSound = new Switch(SCREEN_WIDTH/2,SCREEN_HEIGHT/2 - 300,"SOUND", 70,30);
-        switchVibrations = new Switch(SCREEN_WIDTH/2,SCREEN_HEIGHT/2 - 150,"VIBRATIONS", 70,30);
-        switchAccelerometer = new Switch(SCREEN_WIDTH/2,SCREEN_HEIGHT/2,"ACCELERPMETER", 70,30);
-        switchGyroscope = new Switch(SCREEN_WIDTH/2,SCREEN_HEIGHT/2 + 150,"GYROSCOPE", 70,30);
-        switchLights = new Switch(SCREEN_WIDTH/2,SCREEN_HEIGHT/2 + 300,"SMART LIGHTS", 70,30);
-        buttonBack = new Button(SCREEN_WIDTH/2, SCREEN_HEIGHT/2 + 450, "BACK", 70, 30);
+        buttonControls = new Button(SCREEN_WIDTH/2, SCREEN_HEIGHT/2 - 500, "CONTROLS", 90, 0);
+        buttonControlType = new Button(SCREEN_WIDTH/2, SCREEN_HEIGHT/2 - 350, "ONLY TOUCH", 70, 30);
+        buttonFeatures = new Button(SCREEN_WIDTH/2, SCREEN_HEIGHT/2 - 50, "FEATURES", 90, 0);
+        switchSound = new Switch(SCREEN_WIDTH/2,SCREEN_HEIGHT/2 + 100,"SOUND", 70,30);
+        switchVibrations = new Switch(SCREEN_WIDTH/2,SCREEN_HEIGHT/2 + 250,"VIBRATIONS", 70,30);
+        switchLights = new Switch(SCREEN_WIDTH/2,SCREEN_HEIGHT/2 + 400,"SMART LIGHTS", 70,30);
+        buttonBack = new Button(SCREEN_WIDTH/2, SCREEN_HEIGHT/2 + 700, "BACK", 90, 30);
 
         buttonMenu =  new Button(110, 80, "MENU", 40, 20);
         buttonMenu.getPaint().setTypeface(Typeface.create("Arial", Typeface.NORMAL));
@@ -178,10 +192,11 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
     private void drawSettings(Canvas canvas) {
         background.draw(canvas);
+        buttonControls.draw(canvas);
+        buttonControlType.draw(canvas);
+        buttonFeatures.draw(canvas);
         switchSound.draw(canvas);
         switchVibrations.draw(canvas);
-        switchAccelerometer.draw(canvas);
-        switchGyroscope.draw(canvas);
         switchLights.draw(canvas);
         buttonBack.draw(canvas);
     }
@@ -191,6 +206,8 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         if (touch) {
             rocket.move(lastX,lastY);
         }
+
+        //controller.update();
 
         if (obstacleManager.checkGameOver(rocket)) {
             if(obstacleManager.getLevel() > highScore) {
@@ -224,26 +241,6 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         buttonMenu.draw(canvas);
     }
 
-    public boolean onTouchEvent(MotionEvent e) {
-
-        switch (state) {
-
-            case MENU:
-                menuTouch(e);
-                break;
-
-            case SETTINGS:
-                settingsTouch(e);
-                break;
-
-            case GAME:
-                gameTouch(e);
-                break;
-        }
-
-        return true;
-    }
-
     public void menuTouch(MotionEvent e) {
 
         boolean isReleased = e.getAction() == MotionEvent.ACTION_UP || e.getAction() == MotionEvent.ACTION_CANCEL;
@@ -255,6 +252,11 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
             if (buttonPlay.checkClick(x,y)) {
                 background = new Background(getContext(),true);
                 rocket = new Rocket(getContext());
+
+                if (controller != null) {
+                    controller.setRocket(rocket);
+                }
+
                 collisionManager = new CollisionManager();
                 obstacleManager = new ObstacleManager(getContext());
                 obstacleManager.init();
@@ -309,10 +311,21 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
                 switchVibrations.changeActive();
             } else if (switchSound.checkClick(x,y)) {
                 switchSound.changeActive();
-            } else if (switchAccelerometer.checkClick(x,y)) {
-                switchAccelerometer.changeActive();
-            } else if (switchGyroscope.checkClick(x,y)) {
-                switchGyroscope.changeActive();
+            } else if (buttonControlType.checkClick(x,y)) {
+
+                if (controls == CONTROLS.NONE) {
+                    controls = CONTROLS.ACCELEROMETER;
+                    controller = new AccelerometerController(getContext());
+                    buttonControlType.setText("TOUCH + ACCELEROMETER");
+                } else if (controls == CONTROLS.ACCELEROMETER) {
+                    controls = CONTROLS.GYROSCOPE;
+                    controller = null;
+                    buttonControlType.setText("TOUCH + GYROSCOPE");
+                } else {
+                    controls = CONTROLS.NONE;
+                    controller = null;
+                    buttonControlType.setText("ONLY TOUCH");
+                }
             } else if (switchLights.checkClick(x,y)) {
                 switchLights.changeActive();
             } else if (buttonBack.checkClick(x,y)) {
@@ -321,5 +334,26 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         }
     }
 
+    // --------------- EVENTS -------------- //
+
+    public boolean onTouchEvent(MotionEvent e) {
+
+        switch (state) {
+
+            case MENU:
+                menuTouch(e);
+                break;
+
+            case SETTINGS:
+                settingsTouch(e);
+                break;
+
+            case GAME:
+                gameTouch(e);
+                break;
+        }
+
+        return true;
+    }
 
 }

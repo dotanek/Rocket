@@ -59,6 +59,19 @@ public class Button {
         return false;
     }
 
+    public void setText(String text) {
+        this.text = text;
+        Rect bounds = new Rect();
+        paint.getTextBounds(text, 0, text.length(), bounds);
+
+        height = bounds.height();
+        width = bounds.width();
+        left = x-width/2 - range;
+        top = y - height - range;
+        right = x + width/2 + range;
+        bottom = y + range;
+    }
+
     public Paint getPaint() {
         return paint;
     }
