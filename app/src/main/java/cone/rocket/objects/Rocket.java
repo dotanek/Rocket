@@ -16,6 +16,7 @@ import static cone.rocket.Constraints.SCREEN_WIDTH;
 
 public class Rocket {
     private float x, y;
+    private float momentum;
 
     private int sizeX, sizeY;
     private int fireSizeX, fireSizeY;
@@ -39,6 +40,7 @@ public class Rocket {
         glowSizeY = sizeY*2;
         x = (SCREEN_WIDTH/2) - (sizeX/2);
         y = SCREEN_HEIGHT - sizeY - 200;
+        momentum = 50;
 
         hitBoxCenters = new float[3][2];
         hitBoxRanges = new float[3];
@@ -82,12 +84,20 @@ public class Rocket {
 
     public void updateX(float change) {
         x += change;
+    }
 
+    public void update() {
+        x += momentum;
+        momentum *= 0.8;
         if(x < 0) {
             x = 0;
         } else if (x > SCREEN_WIDTH - sizeX) {
             x = SCREEN_WIDTH - sizeX;
         }
+    }
+
+    public void addMomentum(float momentum) {
+        this.momentum += momentum;
     }
 
     public float getX() {

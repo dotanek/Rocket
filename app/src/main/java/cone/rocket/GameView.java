@@ -219,6 +219,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         }
 
         background.update();
+        rocket.update();
         obstacleManager.update();
         obstacleManager.checkObstaclesBelow();
         obstacleManager.checkObstaclesSpawn();

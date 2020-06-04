@@ -56,18 +56,20 @@ public class AccelerometerController extends Controller implements SensorEventLi
                 if(!sign) {
                     if (acc > peak) {
                         peak = acc;
-                        change = 1.5f * acc;
-                        this.update();
+                        //change = acc
+                        //this.update();
                     } else {
                         stage = MOVEMENT_STAGE.RECOIL;
+                        rocket.addMomentum(peak*3);
                     }
                 } else {
                     if (acc < peak) {
                         peak = acc;
-                        change = 1.5f * acc;
-                        this.update();
+                        //change = acc;
+                        //this.update();
                     } else {
                         stage = MOVEMENT_STAGE.RECOIL;
+                        rocket.addMomentum(peak*3);
                     }
                 }
                 break;

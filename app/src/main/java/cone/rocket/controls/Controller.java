@@ -10,7 +10,7 @@ import cone.rocket.objects.Rocket;
 public class Controller {
 
     protected float change;
-    private Rocket rocket;
+    protected Rocket rocket;
 
     public void setRocket(Rocket rocket) {
         this.rocket = rocket;
