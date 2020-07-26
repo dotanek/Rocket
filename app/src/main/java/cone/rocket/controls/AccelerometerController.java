@@ -36,6 +36,10 @@ public class AccelerometerController extends Controller implements SensorEventLi
     @Override
     public void onSensorChanged(SensorEvent event) {
 
+        if (rocket == null) {
+            return;
+        }
+
         float acc = event.values[0];
 
         switch (stage) {
@@ -56,8 +60,6 @@ public class AccelerometerController extends Controller implements SensorEventLi
                 if(!sign) {
                     if (acc > peak) {
                         peak = acc;
-                        //change = acc
-                        //this.update();
                     } else {
                         stage = MOVEMENT_STAGE.RECOIL;
                         rocket.addMomentum(peak*3);
@@ -65,8 +67,6 @@ public class AccelerometerController extends Controller implements SensorEventLi
                 } else {
                     if (acc < peak) {
                         peak = acc;
-                        //change = acc;
-                        //this.update();
                     } else {
                         stage = MOVEMENT_STAGE.RECOIL;
                         rocket.addMomentum(peak*3);
@@ -97,6 +97,10 @@ public class AccelerometerController extends Controller implements SensorEventLi
                 break;
         }
 
+    }
+
+    public void close() {
+        sensorManager.unregisterListener(this);
     }
 
     @Override

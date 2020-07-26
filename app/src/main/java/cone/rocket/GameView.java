@@ -14,6 +14,7 @@ import cone.rocket.buttons.Button;
 import cone.rocket.buttons.Switch;
 import cone.rocket.controls.AccelerometerController;
 import cone.rocket.controls.Controller;
+import cone.rocket.controls.GyroscopeController;
 import cone.rocket.objects.Rocket;
 
 import static cone.rocket.Constraints.SCREEN_HEIGHT;
@@ -285,6 +286,11 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
         if (isReleased && buttonMenu.checkClick(lastX,lastY)) {
             background = new Background(getContext(),false);
+
+            if(obstacleManager.getLevel() > highScore) {
+                highScore = (int) obstacleManager.getLevel();
+            }
+
             state = STATE.MENU;
         }
 
@@ -319,10 +325,12 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
                     controller = new AccelerometerController(getContext());
                     buttonControlType.setText("TOUCH + ACCELEROMETER");
                 } else if (controls == CONTROLS.ACCELEROMETER) {
+                    controller.close();
                     controls = CONTROLS.GYROSCOPE;
-                    controller = null;
+                    controller = new GyroscopeController(getContext());
                     buttonControlType.setText("TOUCH + GYROSCOPE");
                 } else {
+                    controller.close();
                     controls = CONTROLS.NONE;
                     controller = null;
                     buttonControlType.setText("ONLY TOUCH");

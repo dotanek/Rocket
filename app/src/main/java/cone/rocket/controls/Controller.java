@@ -24,4 +24,6 @@ public class Controller {
             rocket.updateX(change);
         }
     }
+
+    public void close() {};
 }
