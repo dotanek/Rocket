@@ -6,10 +6,12 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.hardware.SensorEvent;
+import android.media.MediaPlayer;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceView;
 import android.view.SurfaceHolder;
+
 import cone.rocket.buttons.Button;
 import cone.rocket.buttons.Switch;
 import cone.rocket.controls.AccelerometerController;
@@ -31,6 +33,10 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     private Controller controller;
     private boolean touch = false;
     private boolean gameOver = false;
+    private static MediaPlayer mediaPlayer;
+
+
+
 
     private int highScore = 0;
 
@@ -58,13 +64,17 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         MENU,
         SETTINGS,
         GAME
-    };
+    }
+
+    ;
 
     private enum CONTROLS {
         NONE,
         ACCELEROMETER,
         GYROSCOPE
-    };
+    }
+
+    ;
 
     private STATE state;
     private CONTROLS controls;
@@ -77,33 +87,32 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         setFocusable(true);
         getHolder().addCallback(this);
 
-        background = new Background(getContext(),false);
+        background = new Background(getContext(), false);
         state = STATE.MENU;
         controls = CONTROLS.NONE;
 
         // ------------------- MENU ---------------------- //
-        buttonBanner =  new Button(SCREEN_WIDTH/2, SCREEN_HEIGHT/2 - 180, "ROCKET", 150, 0);
-        buttonPlay =  new Button(SCREEN_WIDTH/2, SCREEN_HEIGHT/2, "PLAY", 70, 30);
-        buttonSettings =  new Button(SCREEN_WIDTH/2, SCREEN_HEIGHT/2 + 150, "SETTINGS", 70, 30);
-        buttonExit =  new Button(SCREEN_WIDTH/2, SCREEN_HEIGHT/2 + 300, "EXIT", 70, 30);
+        buttonBanner = new Button(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - 180, "ROCKET", 150, 0);
+        buttonPlay = new Button(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, "PLAY", 70, 30);
+        buttonSettings = new Button(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 + 150, "SETTINGS", 70, 30);
+        buttonExit = new Button(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 + 300, "EXIT", 70, 30);
 
         // ------------------- SETTINGS ---------------------- //
 
-        buttonControls = new Button(SCREEN_WIDTH/2, SCREEN_HEIGHT/2 - 500, "CONTROLS", 90, 0);
-        buttonControlType = new Button(SCREEN_WIDTH/2, SCREEN_HEIGHT/2 - 350, "ONLY TOUCH", 70, 30);
-        buttonFeatures = new Button(SCREEN_WIDTH/2, SCREEN_HEIGHT/2 - 50, "FEATURES", 90, 0);
-        switchSound = new Switch(SCREEN_WIDTH/2,SCREEN_HEIGHT/2 + 100,"SOUND", 70,30);
-        switchVibrations = new Switch(SCREEN_WIDTH/2,SCREEN_HEIGHT/2 + 250,"VIBRATIONS", 70,30);
-        switchLights = new Switch(SCREEN_WIDTH/2,SCREEN_HEIGHT/2 + 400,"SMART LIGHTS", 70,30);
-        buttonBack = new Button(SCREEN_WIDTH/2, SCREEN_HEIGHT/2 + 700, "BACK", 90, 30);
+        buttonControls = new Button(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - 500, "CONTROLS", 90, 0);
+        buttonControlType = new Button(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - 350, "ONLY TOUCH", 70, 30);
+        buttonFeatures = new Button(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - 50, "FEATURES", 90, 0);
+        switchSound = new Switch(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 + 100, "SOUND", 70, 30);
+        switchVibrations = new Switch(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 + 250, "VIBRATIONS", 70, 30);
+        switchLights = new Switch(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 + 400, "SMART LIGHTS", 70, 30);
+        buttonBack = new Button(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 + 700, "BACK", 90, 30);
 
-        buttonMenu =  new Button(110, 80, "MENU", 40, 20);
+        buttonMenu = new Button(110, 80, "MENU", 40, 20);
         buttonMenu.getPaint().setTypeface(Typeface.create("Arial", Typeface.NORMAL));
     }
 
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-
     }
 
     @Override
@@ -128,6 +137,8 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
             retry = false;
         }
     }
+
+
 
     public void update() {
 
@@ -184,7 +195,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         textPaint.setColor(Color.WHITE);
         textPaint.setTextAlign(Paint.Align.CENTER);
         textPaint.setTextSize(30);
-        canvas.drawText("Highest level: " + Integer.toString(highScore),SCREEN_WIDTH/2,SCREEN_HEIGHT - 50, textPaint);
+        canvas.drawText("Highest level: " + Integer.toString(highScore), SCREEN_WIDTH / 2, SCREEN_HEIGHT - 50, textPaint);
     }
 
     private void updateSettings() {
@@ -205,17 +216,17 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     private void updateGame() {
 
         if (touch) {
-            rocket.move(lastX,lastY);
+            rocket.move(lastX, lastY);
         }
 
         //controller.update();
 
         if (obstacleManager.checkGameOver(rocket)) {
-            if(obstacleManager.getLevel() > highScore) {
+            if (obstacleManager.getLevel() > highScore) {
                 highScore = (int) obstacleManager.getLevel();
             }
 
-            background = new Background(getContext(),false);
+            background = new Background(getContext(), false);
             state = STATE.MENU;
         }
 
@@ -237,7 +248,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         canvas.drawText("LEVEL " + Integer.toString((int) obstacleManager.getLevel()), SCREEN_WIDTH - 200, 80, paint);
 
         if (touch) {
-            canvas.drawOval(lastX-50,lastY-50,lastX+50,lastY+50, paint);
+            canvas.drawOval(lastX - 50, lastY - 50, lastX + 50, lastY + 50, paint);
         }
 
         buttonMenu.draw(canvas);
@@ -251,8 +262,8 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         float y = e.getY();
 
         if (isReleased) {
-            if (buttonPlay.checkClick(x,y)) {
-                background = new Background(getContext(),true);
+            if (buttonPlay.checkClick(x, y)) {
+                background = new Background(getContext(), true);
                 rocket = new Rocket(getContext());
 
                 if (controller != null) {
@@ -265,9 +276,9 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
                 lastX = 0;
                 lastY = 0;
                 state = STATE.GAME;
-            } else if (buttonSettings.checkClick(x,y)) {
+            } else if (buttonSettings.checkClick(x, y)) {
                 state = STATE.SETTINGS;
-            } else if (buttonExit.checkClick(x,y)) {
+            } else if (buttonExit.checkClick(x, y)) {
                 android.os.Process.killProcess(android.os.Process.myPid());
                 System.exit(0);
             }
@@ -284,10 +295,10 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         lastX = e.getX();
         lastY = e.getY();
 
-        if (isReleased && buttonMenu.checkClick(lastX,lastY)) {
-            background = new Background(getContext(),false);
+        if (isReleased && buttonMenu.checkClick(lastX, lastY)) {
+            background = new Background(getContext(), false);
 
-            if(obstacleManager.getLevel() > highScore) {
+            if (obstacleManager.getLevel() > highScore) {
                 highScore = (int) obstacleManager.getLevel();
             }
 
@@ -307,18 +318,27 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     public void settingsTouch(MotionEvent e) {
 
         boolean isReleased = e.getAction() == MotionEvent.ACTION_UP || e.getAction() == MotionEvent.ACTION_CANCEL;
+        mediaPlayer = MainActivity.getMediaPlayer();
+        mediaPlayer.setLooping(true);
 
         float x = e.getX();
         float y = e.getY();
 
         if (isReleased) {
-            if (switchSound.checkClick(x,y)) {
+            if (switchSound.checkClick(x, y)) {
                 switchSound.changeActive();
-            } else if (switchVibrations.checkClick(x,y)) {
+                if (switchSound.isActive()) {
+                    Log.e("is active", String.valueOf(switchSound.isActive()));
+                    mediaPlayer.start();
+                } else {
+                    Log.e("is not active: ", String.valueOf(switchSound.isActive()));
+                    mediaPlayer.pause();
+                    mediaPlayer.seekTo(0);
+                }
+
+            } else if (switchVibrations.checkClick(x, y)) {
                 switchVibrations.changeActive();
-            } else if (switchSound.checkClick(x,y)) {
-                switchSound.changeActive();
-            } else if (buttonControlType.checkClick(x,y)) {
+            } else if (buttonControlType.checkClick(x, y)) {
 
                 if (controls == CONTROLS.NONE) {
                     controls = CONTROLS.ACCELEROMETER;
@@ -335,9 +355,9 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
                     controller = null;
                     buttonControlType.setText("ONLY TOUCH");
                 }
-            } else if (switchLights.checkClick(x,y)) {
+            } else if (switchLights.checkClick(x, y)) {
                 switchLights.changeActive();
-            } else if (buttonBack.checkClick(x,y)) {
+            } else if (buttonBack.checkClick(x, y)) {
                 state = STATE.MENU;
             }
         }
@@ -365,4 +385,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         return true;
     }
 
+    public static MediaPlayer getMediaPlayer() {
+        return mediaPlayer;
+    }
 }

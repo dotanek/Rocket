@@ -86,4 +86,8 @@ public class Switch {
             textRight = "ON";
         }
     }
+
+    public boolean isActive() {
+        return active;
+    }
 }

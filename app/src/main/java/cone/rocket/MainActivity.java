@@ -1,11 +1,15 @@
 package cone.rocket;
 
 import android.app.Activity;
+import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.view.Window;
 import android.view.WindowManager;
 
 public class MainActivity extends Activity {
+
+    private static MediaPlayer mediaPlayer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -19,5 +23,17 @@ public class MainActivity extends Activity {
                 WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         setContentView(new GameView(this));
+
+        mediaPlayer = MediaPlayer.create(this, R.raw.dupa);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        GameView.getMediaPlayer().stop();
+    }
+
+    public static MediaPlayer getMediaPlayer() {
+        return mediaPlayer;
     }
 }
