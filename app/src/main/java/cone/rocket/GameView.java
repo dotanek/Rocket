@@ -7,6 +7,8 @@ import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.hardware.SensorEvent;
 import android.media.MediaPlayer;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceView;
@@ -34,9 +36,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     private boolean touch = false;
     private boolean gameOver = false;
     private static MediaPlayer mediaPlayer;
-
-
-
+    private static Vibrator vibrator;
 
     private int highScore = 0;
 
@@ -139,7 +139,6 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     }
 
 
-
     public void update() {
 
         switch (state) {
@@ -222,6 +221,9 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         //controller.update();
 
         if (obstacleManager.checkGameOver(rocket)) {
+            if (switchVibrations.isActive()) {
+                vibrator.vibrate(VibrationEffect.createOneShot(100, 150));
+            }
             if (obstacleManager.getLevel() > highScore) {
                 highScore = (int) obstacleManager.getLevel();
             }
@@ -318,8 +320,11 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     public void settingsTouch(MotionEvent e) {
 
         boolean isReleased = e.getAction() == MotionEvent.ACTION_UP || e.getAction() == MotionEvent.ACTION_CANCEL;
+
         mediaPlayer = MainActivity.getMediaPlayer();
         mediaPlayer.setLooping(true);
+
+        vibrator = MainActivity.getVibe();
 
         float x = e.getX();
         float y = e.getY();
@@ -328,16 +333,21 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
             if (switchSound.checkClick(x, y)) {
                 switchSound.changeActive();
                 if (switchSound.isActive()) {
-                    Log.e("is active", String.valueOf(switchSound.isActive()));
+                    Log.d("sound button is active", String.valueOf(switchSound.isActive()));
                     mediaPlayer.start();
                 } else {
-                    Log.e("is not active: ", String.valueOf(switchSound.isActive()));
+                    Log.d("sound button is active: ", String.valueOf(switchSound.isActive()));
                     mediaPlayer.pause();
                     mediaPlayer.seekTo(0);
                 }
 
             } else if (switchVibrations.checkClick(x, y)) {
                 switchVibrations.changeActive();
+                if (switchVibrations.isActive()) {
+                    Log.e("vibration button is active", String.valueOf(switchVibrations.isActive()));
+                } else {
+                    Log.e("vibration button is active: ", String.valueOf(switchVibrations.isActive()));
+                }
             } else if (buttonControlType.checkClick(x, y)) {
 
                 if (controls == CONTROLS.NONE) {
