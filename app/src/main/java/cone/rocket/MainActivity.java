@@ -35,6 +35,7 @@ public class MainActivity extends Activity {
     protected void onStop() {
         super.onStop();
         GameView.getMediaPlayer().stop();
+        GameView.getLight().close();
     }
 
     public static MediaPlayer getMediaPlayer() {

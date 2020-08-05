@@ -5,7 +5,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Typeface;
-import android.hardware.SensorEvent;
 import android.media.MediaPlayer;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
@@ -19,6 +18,7 @@ import cone.rocket.buttons.Switch;
 import cone.rocket.controls.AccelerometerController;
 import cone.rocket.controls.Controller;
 import cone.rocket.controls.GyroscopeController;
+import cone.rocket.controls.Light;
 import cone.rocket.objects.Rocket;
 
 import static cone.rocket.Constraints.SCREEN_HEIGHT;
@@ -35,8 +35,11 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     private Controller controller;
     private boolean touch = false;
     private boolean gameOver = false;
+
     private static MediaPlayer mediaPlayer;
     private static Vibrator vibrator;
+    private static Light light;
+
 
     private int highScore = 0;
 
@@ -367,6 +370,15 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
                 }
             } else if (switchLights.checkClick(x, y)) {
                 switchLights.changeActive();
+                if (switchLights.isActive()) {
+                    Log.e("Light button is active", String.valueOf(switchLights.isActive()));
+                    light = new Light(getContext());
+                } else {
+                    Log.e("Light button is active", String.valueOf(switchLights.isActive()));
+                    if (light != null) {
+                        light.close();
+                    }
+                }
             } else if (buttonBack.checkClick(x, y)) {
                 state = STATE.MENU;
             }
@@ -397,5 +409,9 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
     public static MediaPlayer getMediaPlayer() {
         return mediaPlayer;
+    }
+
+    public static Light getLight() {
+        return light;
     }
 }
