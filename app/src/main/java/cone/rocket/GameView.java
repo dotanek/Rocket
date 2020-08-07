@@ -1,6 +1,7 @@
 package cone.rocket;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -8,6 +9,7 @@ import android.graphics.Typeface;
 import android.media.MediaPlayer;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceView;
@@ -39,6 +41,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     private static MediaPlayer mediaPlayer;
     private static Vibrator vibrator;
     private static Light light;
+    private static int brightness;
 
 
     private int highScore = 0;
@@ -81,7 +84,6 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
     private STATE state;
     private CONTROLS controls;
-
     private float lastX, lastY;
 
     public GameView(Context context) {
@@ -112,6 +114,15 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
         buttonMenu = new Button(110, 80, "MENU", 40, 20);
         buttonMenu.getPaint().setTypeface(Typeface.create("Arial", Typeface.NORMAL));
+
+        boolean settingsCanWrite = Settings.System.canWrite(context);
+        //Log.e("Can write settings", String.valueOf(settingsCanWrite));
+
+        if (!settingsCanWrite) {
+            Intent intent = new Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(intent);
+        }
     }
 
     @Override
@@ -369,9 +380,12 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
                     buttonControlType.setText("ONLY TOUCH");
                 }
             } else if (switchLights.checkClick(x, y)) {
+                brightness = Settings.System.getInt(getContext().getContentResolver(), Settings.System.SCREEN_BRIGHTNESS, 0);
                 switchLights.changeActive();
                 if (switchLights.isActive()) {
                     Log.e("Light button is active", String.valueOf(switchLights.isActive()));
+                    Log.e("Brightness", String.valueOf(brightness));
+
                     light = new Light(getContext());
                 } else {
                     Log.e("Light button is active", String.valueOf(switchLights.isActive()));
@@ -414,4 +428,6 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     public static Light getLight() {
         return light;
     }
+
+
 }

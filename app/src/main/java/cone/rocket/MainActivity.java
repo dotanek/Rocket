@@ -5,7 +5,7 @@ import android.content.Context;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Vibrator;
-import android.provider.MediaStore;
+import android.provider.Settings;
 import android.view.Window;
 import android.view.WindowManager;
 
@@ -29,6 +29,7 @@ public class MainActivity extends Activity {
 
         mediaPlayer = MediaPlayer.create(this, R.raw.dupa);
         vibe = (Vibrator) MainActivity.this.getSystemService(Context.VIBRATOR_SERVICE);
+
     }
 
     @Override
