@@ -15,6 +15,14 @@ import android.view.MotionEvent;
 import android.view.SurfaceView;
 import android.view.SurfaceHolder;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+
 import cone.rocket.buttons.Button;
 import cone.rocket.buttons.Switch;
 import cone.rocket.controls.AccelerometerController;
@@ -123,6 +131,10 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(intent);
         }
+
+        loadScoreFromFile();
+
+
     }
 
     @Override
@@ -240,6 +252,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
             }
             if (obstacleManager.getLevel() > highScore) {
                 highScore = (int) obstacleManager.getLevel();
+                saveScoreToFile();
             }
 
             background = new Background(getContext(), false);
@@ -252,6 +265,71 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         obstacleManager.checkObstaclesBelow();
         obstacleManager.checkObstaclesSpawn();
     }
+
+    private void saveScoreToFile() {
+        try (OutputStreamWriter outputStreamWriter = new OutputStreamWriter(getContext().openFileOutput("highScore.txt", Context.MODE_PRIVATE))) {
+            outputStreamWriter.write(String.valueOf(highScore));
+        } catch (IOException e) {
+            Log.e("File exception: ", e.toString());
+        }
+    }
+
+    private void loadScoreFromFile() {
+        String highScoreToString = "";
+        try (InputStream inputStream = getContext().openFileInput("highScore.txt")) {
+            if (inputStream != null) {
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+                String receiveString = "";
+                StringBuilder stringBuilder = new StringBuilder();
+
+                while ((receiveString = bufferedReader.readLine()) != null) {
+                    stringBuilder.append(receiveString);
+                }
+                highScoreToString = stringBuilder.toString();
+                highScore = Integer.parseInt(highScoreToString);
+            } else {
+                highScore = 0;
+            }
+        } catch (IOException e) {
+            Log.e("File exception: ", e.toString());
+        }
+    }
+
+    private void saveSettingsToFile() {
+        String settingsToString = "";
+        try (OutputStreamWriter outputStreamWriter = new OutputStreamWriter(getContext().openFileOutput("settings.txt", Context.MODE_PRIVATE))) {
+
+            settingsToString += ((switchSound.isActive()) ? 1 : 0);
+            settingsToString += ((switchVibrations.isActive()) ? 1 : 0);
+            settingsToString += ((switchLights.isActive()) ? 1 : 0);
+
+        } catch (IOException e) {
+            Log.e("File exception: ", e.toString());
+        }
+        Log.e("Ustawienia: ", settingsToString);
+    }
+
+//    private void loadSettingsToFile() {
+//        String highScoreToString = "";
+//        try (InputStream inputStream = getContext().openFileInput("settings.txt")) {
+//            if (inputStream != null) {
+//                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+//                String receiveString = "";
+//                StringBuilder stringBuilder = new StringBuilder();
+//
+//                while ((receiveString = bufferedReader.readLine()) != null) {
+//                    stringBuilder.append(receiveString);
+//                }
+//                highScoreToString = stringBuilder.toString();
+//                highScore = Integer.parseInt(highScoreToString);
+//            } else {
+//                highScore = 0;
+//            }
+//        } catch (IOException e) {
+//            Log.e("File exception: ", e.toString());
+//        }
+//    }
+
 
     private void drawGame(Canvas canvas) {
         background.draw(canvas);
@@ -363,7 +441,6 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
                     Log.e("vibration button is active: ", String.valueOf(switchVibrations.isActive()));
                 }
             } else if (buttonControlType.checkClick(x, y)) {
-
                 if (controls == CONTROLS.NONE) {
                     controls = CONTROLS.ACCELEROMETER;
                     controller = new AccelerometerController(getContext());
@@ -396,6 +473,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
             } else if (buttonBack.checkClick(x, y)) {
                 state = STATE.MENU;
             }
+            saveSettingsToFile();
         }
     }
 

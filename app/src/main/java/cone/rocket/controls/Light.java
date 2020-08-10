@@ -7,11 +7,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.provider.Settings;
-import android.util.Log;
 import android.view.WindowManager;
-
-import cone.rocket.GameView;
-
 
 public class Light extends Activity implements SensorEventListener {
 
@@ -32,10 +28,7 @@ public class Light extends Activity implements SensorEventListener {
     public void onSensorChanged(SensorEvent event) {
         //Log.e("Light: " , String.valueOf(event.values[0]));
         if (event.values[0] < 50) {
-            WindowManager.LayoutParams layout = getWindow().getAttributes();
-            layout.screenBrightness = 1F;
-            getWindow().setAttributes(layout);
-            //Settings.System.putInt(context.getContentResolver(), Settings.System.SCREEN_BRIGHTNESS, 200);
+            Settings.System.putInt(context.getContentResolver(), Settings.System.SCREEN_BRIGHTNESS, 200);
         } else if (event.values[0] < 100) {
             Settings.System.putInt(context.getContentResolver(), Settings.System.SCREEN_BRIGHTNESS, 800);
         } else if (event.values[0] < 200) {
