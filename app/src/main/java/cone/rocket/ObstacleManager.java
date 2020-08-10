@@ -50,7 +50,6 @@ public class ObstacleManager {
             freshObstacle = new Asteroid(context,200, 1 + level/10);
             obstacles.add(freshObstacle);
         }
-
         level += 0.005;
     }
 
@@ -60,36 +59,12 @@ public class ObstacleManager {
                 return true;
             }
         }
-
         return false;
     }
 
-    public void checkObstaclesCollided() {
-        int removed = 0;
-
-        for (int i = 0; i < obstacles.size(); i++) {
-            if (obstacles.get(i).isCollided()) {
-                obstacles.remove(i);
-                removed++;
-            }
-        }
-
-        while(removed > 0) {
-            obstacles.add(new Asteroid(context,200, 1));
-            removed--;
-        }
-    }
-
     public void update() {
-
         for(Obstacle obstacle : obstacles) {
             obstacle.update();
-
-            for(Obstacle obstacle2 : obstacles) {
-                if (CollisionManager.ooCollision(obstacle,obstacle2)) {
-                    obstacle.setCollided(true);
-                }
-            }
         }
     }
 

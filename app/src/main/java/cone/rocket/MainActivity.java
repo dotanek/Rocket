@@ -5,7 +5,6 @@ import android.content.Context;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Vibrator;
-import android.provider.Settings;
 import android.view.Window;
 import android.view.WindowManager;
 
@@ -25,11 +24,10 @@ public class MainActivity extends Activity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON,
                 WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-        setContentView(new GameView(this));
-
-        mediaPlayer = MediaPlayer.create(this, R.raw.dupa);
+        mediaPlayer = MediaPlayer.create(this, R.raw.music);
         vibe = (Vibrator) MainActivity.this.getSystemService(Context.VIBRATOR_SERVICE);
 
+        setContentView(new GameView(this));
     }
 
     @Override

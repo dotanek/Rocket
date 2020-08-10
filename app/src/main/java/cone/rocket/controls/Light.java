@@ -7,15 +7,12 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.provider.Settings;
-import android.view.WindowManager;
 
 public class Light extends Activity implements SensorEventListener {
 
     private SensorManager sensorManager;
     private Sensor sensor;
     private Context context;
-
-
 
     public Light(Context context) {
         this.context = context;
@@ -26,15 +23,15 @@ public class Light extends Activity implements SensorEventListener {
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        //Log.e("Light: " , String.valueOf(event.values[0]));
+        //Log.d("Light: " , String.valueOf(event.values[0]));
         if (event.values[0] < 50) {
-            Settings.System.putInt(context.getContentResolver(), Settings.System.SCREEN_BRIGHTNESS, 200);
+            Settings.System.putInt(context.getContentResolver(), Settings.System.SCREEN_BRIGHTNESS, 50);
         } else if (event.values[0] < 100) {
-            Settings.System.putInt(context.getContentResolver(), Settings.System.SCREEN_BRIGHTNESS, 800);
+            Settings.System.putInt(context.getContentResolver(), Settings.System.SCREEN_BRIGHTNESS, 125);
         } else if (event.values[0] < 200) {
-            Settings.System.putInt(context.getContentResolver(), Settings.System.SCREEN_BRIGHTNESS, 1400);
+            Settings.System.putInt(context.getContentResolver(), Settings.System.SCREEN_BRIGHTNESS, 190);
         } else {
-            Settings.System.putInt(context.getContentResolver(), Settings.System.SCREEN_BRIGHTNESS, 2050);
+            Settings.System.putInt(context.getContentResolver(), Settings.System.SCREEN_BRIGHTNESS, 255);
         }
     }
 

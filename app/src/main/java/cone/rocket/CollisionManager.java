@@ -6,27 +6,9 @@ import cone.rocket.objects.Obstacle;
 import cone.rocket.objects.Rocket;
 
 public class CollisionManager {
-
-    public static boolean ooCollision(Obstacle o1, Obstacle o2) {
-        float r1 = o1.getDiameter()/2;
-        float r2 = o2.getDiameter()/2;
-        float cx1 = o1.getX() + r1;
-        float cy1 = o1.getY() + r1;
-        float cx2 = o2.getX() + r2;
-        float cy2 = o2.getY() + r2;
-
-        float distance = (float) Math.sqrt(Math.pow(cx1 - cx2, 2) + Math.pow(cy1 - cy2, 2));
-
-        if (distance <= r1 + r2) {
-            return true;
-        }
-
-        return false;
-    }
-
     public static boolean orCollision(Obstacle o, Rocket r) {
 
-        float or = o.getDiameter()/2;
+        float or = o.getDiameter() / 2;
         float ocx = o.getX() + or;
         float ocy = o.getY() + or;
 
@@ -43,7 +25,7 @@ public class CollisionManager {
             float distance = (float) Math.sqrt(Math.pow(ocx - rcx, 2) + Math.pow(ocy - rcy, 2));
 
             if (distance <= or + rr) {
-                Log.d("Collision","True!");
+                Log.d("Collision", "True!");
                 return true;
             }
         }

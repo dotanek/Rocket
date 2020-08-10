@@ -124,7 +124,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         buttonMenu.getPaint().setTypeface(Typeface.create("Arial", Typeface.NORMAL));
 
         boolean settingsCanWrite = Settings.System.canWrite(context);
-        //Log.e("Can write settings", String.valueOf(settingsCanWrite));
+        //Log.d("Can write settings", String.valueOf(settingsCanWrite));
 
         if (!settingsCanWrite) {
             Intent intent = new Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS);
@@ -133,8 +133,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         }
 
         loadScoreFromFile();
-
-
+        loadSettingsFromFile();
     }
 
     @Override
@@ -303,32 +302,45 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
             settingsToString += ((switchVibrations.isActive()) ? 1 : 0);
             settingsToString += ((switchLights.isActive()) ? 1 : 0);
 
+            outputStreamWriter.write(settingsToString);
+
         } catch (IOException e) {
             Log.e("File exception: ", e.toString());
         }
-        Log.e("Ustawienia: ", settingsToString);
     }
 
-//    private void loadSettingsToFile() {
-//        String highScoreToString = "";
-//        try (InputStream inputStream = getContext().openFileInput("settings.txt")) {
-//            if (inputStream != null) {
-//                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-//                String receiveString = "";
-//                StringBuilder stringBuilder = new StringBuilder();
-//
-//                while ((receiveString = bufferedReader.readLine()) != null) {
-//                    stringBuilder.append(receiveString);
-//                }
-//                highScoreToString = stringBuilder.toString();
-//                highScore = Integer.parseInt(highScoreToString);
-//            } else {
-//                highScore = 0;
-//            }
-//        } catch (IOException e) {
-//            Log.e("File exception: ", e.toString());
-//        }
-//    }
+    private void loadSettingsFromFile() {
+        String settingsToString = "";
+        try (InputStream inputStream = getContext().openFileInput("settings.txt")) {
+            if (inputStream != null) {
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+                String receiveString = "";
+                StringBuilder stringBuilder = new StringBuilder();
+
+                while ((receiveString = bufferedReader.readLine()) != null) {
+                    stringBuilder.append(receiveString);
+                }
+                settingsToString = stringBuilder.toString();
+
+                if (settingsToString.length() != 0) {
+                    if (settingsToString.charAt(0) == '1') {
+                        switchSound.changeActive();
+                        music();
+                    }
+                    if (settingsToString.charAt(1) == '1') {
+                        switchVibrations.changeActive();
+                        vibration();
+                    }
+                    if (settingsToString.charAt(2) == '1') {
+                        switchLights.changeActive();
+                        light();
+                    }
+                }
+            }
+        } catch (IOException e) {
+            Log.e("File exception: ", e.toString());
+        }
+    }
 
 
     private void drawGame(Canvas canvas) {
@@ -377,8 +389,6 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
                 System.exit(0);
             }
         }
-
-
     }
 
     public void gameTouch(MotionEvent e) {
@@ -409,14 +419,45 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         }
     }
 
+    private void music() {
+        if (mediaPlayer == null) {
+            mediaPlayer = MainActivity.getMediaPlayer();
+            mediaPlayer.setLooping(true);
+        }
+        if (switchSound.isActive()) {
+            Log.d("sound button is active", String.valueOf(switchSound.isActive()));
+            mediaPlayer.start();
+        } else {
+            Log.d("sound button is active: ", String.valueOf(switchSound.isActive()));
+            mediaPlayer.pause();
+            mediaPlayer.seekTo(0);
+        }
+    }
+
+    private void vibration() {
+        if (vibrator == null) {
+            vibrator = MainActivity.getVibe();
+        }
+    }
+
+    private void light() {
+        brightness = Settings.System.getInt(getContext().getContentResolver(), Settings.System.SCREEN_BRIGHTNESS, 0);
+        if (switchLights.isActive()) {
+//            Log.d("Light button is active", String.valueOf(switchLights.isActive()));
+//            Log.d("Brightness", String.valueOf(brightness));
+
+            light = new Light(getContext());
+        } else {
+//            Log.d("Light button is active", String.valueOf(switchLights.isActive()));
+            if (light != null) {
+                light.close();
+            }
+        }
+    }
+
     public void settingsTouch(MotionEvent e) {
 
         boolean isReleased = e.getAction() == MotionEvent.ACTION_UP || e.getAction() == MotionEvent.ACTION_CANCEL;
-
-        mediaPlayer = MainActivity.getMediaPlayer();
-        mediaPlayer.setLooping(true);
-
-        vibrator = MainActivity.getVibe();
 
         float x = e.getX();
         float y = e.getY();
@@ -424,22 +465,10 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         if (isReleased) {
             if (switchSound.checkClick(x, y)) {
                 switchSound.changeActive();
-                if (switchSound.isActive()) {
-                    Log.d("sound button is active", String.valueOf(switchSound.isActive()));
-                    mediaPlayer.start();
-                } else {
-                    Log.d("sound button is active: ", String.valueOf(switchSound.isActive()));
-                    mediaPlayer.pause();
-                    mediaPlayer.seekTo(0);
-                }
-
+                music();
             } else if (switchVibrations.checkClick(x, y)) {
                 switchVibrations.changeActive();
-                if (switchVibrations.isActive()) {
-                    Log.e("vibration button is active", String.valueOf(switchVibrations.isActive()));
-                } else {
-                    Log.e("vibration button is active: ", String.valueOf(switchVibrations.isActive()));
-                }
+                vibration();
             } else if (buttonControlType.checkClick(x, y)) {
                 if (controls == CONTROLS.NONE) {
                     controls = CONTROLS.ACCELEROMETER;
@@ -457,19 +486,8 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
                     buttonControlType.setText("ONLY TOUCH");
                 }
             } else if (switchLights.checkClick(x, y)) {
-                brightness = Settings.System.getInt(getContext().getContentResolver(), Settings.System.SCREEN_BRIGHTNESS, 0);
                 switchLights.changeActive();
-                if (switchLights.isActive()) {
-                    Log.e("Light button is active", String.valueOf(switchLights.isActive()));
-                    Log.e("Brightness", String.valueOf(brightness));
-
-                    light = new Light(getContext());
-                } else {
-                    Log.e("Light button is active", String.valueOf(switchLights.isActive()));
-                    if (light != null) {
-                        light.close();
-                    }
-                }
+                light();
             } else if (buttonBack.checkClick(x, y)) {
                 state = STATE.MENU;
             }
