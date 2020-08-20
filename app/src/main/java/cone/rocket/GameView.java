@@ -16,8 +16,6 @@ import android.view.SurfaceView;
 import android.view.SurfaceHolder;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -74,7 +72,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
     private Button buttonMenu;
 
-    private enum STATE {
+    public enum STATE {
         MENU,
         SETTINGS,
         GAME
@@ -90,7 +88,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
     ;
 
-    private STATE state;
+    private static STATE state;
     private CONTROLS controls;
     private float lastX, lastY;
 
@@ -238,12 +236,9 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     }
 
     private void updateGame() {
-
         if (touch) {
             rocket.move(lastX, lastY);
         }
-
-        //controller.update();
 
         if (obstacleManager.checkGameOver(rocket)) {
             if (switchVibrations.isActive()) {
@@ -525,5 +520,11 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         return light;
     }
 
+    public static STATE getState() {
+        return state;
+    }
 
+    public static void setState(STATE state) {
+        GameView.state = state;
+    }
 }

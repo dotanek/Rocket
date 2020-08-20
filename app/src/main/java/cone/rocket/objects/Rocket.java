@@ -141,9 +141,9 @@ public class Rocket {
         paint.setColor(Color.WHITE);
         canvas.drawBitmap(rocket_model, x, y, null);
         //Hitboxes (Ovals tbh)
-        //canvas.drawOval(x+hitBoxCenters[0][0]-hitBoxRanges[0],y + hitBoxCenters[0][1] - hitBoxRanges[0],x+hitBoxCenters[0][0]+hitBoxRanges[0],y + hitBoxCenters[0][1] + hitBoxRanges[0],paint);
-        //canvas.drawOval(x+hitBoxCenters[1][0]-hitBoxRanges[1],y + hitBoxCenters[1][1] - hitBoxRanges[1],x+hitBoxCenters[1][0]+hitBoxRanges[1],y + hitBoxCenters[1][1] + hitBoxRanges[1],paint);
-        //canvas.drawOval(x+hitBoxCenters[2][0]-hitBoxRanges[2],y + hitBoxCenters[2][1] - hitBoxRanges[2],x+hitBoxCenters[2][0]+hitBoxRanges[2],y + hitBoxCenters[2][1] + hitBoxRanges[2],paint);
+//        canvas.drawOval(x+hitBoxCenters[0][0]-hitBoxRanges[0],y + hitBoxCenters[0][1] - hitBoxRanges[0],x+hitBoxCenters[0][0]+hitBoxRanges[0],y + hitBoxCenters[0][1] + hitBoxRanges[0],paint);
+//        canvas.drawOval(x+hitBoxCenters[1][0]-hitBoxRanges[1],y + hitBoxCenters[1][1] - hitBoxRanges[1],x+hitBoxCenters[1][0]+hitBoxRanges[1],y + hitBoxCenters[1][1] + hitBoxRanges[1],paint);
+//        canvas.drawOval(x+hitBoxCenters[2][0]-hitBoxRanges[2],y + hitBoxCenters[2][1] - hitBoxRanges[2],x+hitBoxCenters[2][0]+hitBoxRanges[2],y + hitBoxCenters[2][1] + hitBoxRanges[2],paint);
     }
 
     public float[][] getHitBoxCenters() {

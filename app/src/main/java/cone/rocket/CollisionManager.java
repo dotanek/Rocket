@@ -7,7 +7,6 @@ import cone.rocket.objects.Rocket;
 
 public class CollisionManager {
     public static boolean orCollision(Obstacle o, Rocket r) {
-
         float or = o.getDiameter() / 2;
         float ocx = o.getX() + or;
         float ocy = o.getY() + or;

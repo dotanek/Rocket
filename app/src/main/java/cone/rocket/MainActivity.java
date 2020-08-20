@@ -8,10 +8,16 @@ import android.os.Vibrator;
 import android.view.Window;
 import android.view.WindowManager;
 
+import cone.rocket.controls.Magnetic;
+import cone.rocket.controls.Proximity;
+
 public class MainActivity extends Activity {
 
     private static MediaPlayer mediaPlayer;
     private static Vibrator vibe;
+    private static Proximity proximity;
+    private static Magnetic magnetic;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,6 +32,8 @@ public class MainActivity extends Activity {
 
         mediaPlayer = MediaPlayer.create(this, R.raw.music);
         vibe = (Vibrator) MainActivity.this.getSystemService(Context.VIBRATOR_SERVICE);
+        proximity = new Proximity(getApplicationContext());
+        magnetic = new Magnetic(getApplicationContext());
 
         setContentView(new GameView(this));
     }
