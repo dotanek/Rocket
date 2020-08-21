@@ -6,7 +6,6 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.util.Log;
 
 import cone.rocket.GameView;
 
@@ -25,9 +24,10 @@ public class Proximity extends Activity implements SensorEventListener {
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        Log.e("Proximity:", String.valueOf(event.values[0]));
         if (event.values[0] < 5) {
-            GameView.setState(GameView.STATE.MENU);
+            if (GameView.getState() == GameView.STATE.SETTINGS) {
+                GameView.setState(GameView.STATE.MENU);
+            }
         }
     }
 

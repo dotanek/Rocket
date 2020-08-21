@@ -1,10 +1,8 @@
 package cone.rocket;
 
-import android.content.AsyncQueryHandler;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Canvas;
-import android.util.Log;
 
 import java.util.ArrayList;
 
@@ -13,8 +11,6 @@ import cone.rocket.objects.Obstacle;
 import cone.rocket.objects.Rocket;
 
 public class ObstacleManager {
-
-    int screenWidth = Resources.getSystem().getDisplayMetrics().widthPixels;
     int screenHeight = Resources.getSystem().getDisplayMetrics().heightPixels;
 
     private ArrayList<Obstacle> obstacles;
@@ -26,10 +22,6 @@ public class ObstacleManager {
         level = 1;
         this.context = context;;
         obstacles = new ArrayList<Obstacle>();
-    }
-
-    public Obstacle getObstacle(int index) {
-        return obstacles.get(index);
     }
 
     public void init() {

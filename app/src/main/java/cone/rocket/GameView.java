@@ -49,9 +49,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     private static Light light;
     private static int brightness;
 
-
     private int highScore = 0;
-
 
     // ------------------- MENU ---------------------- //
 
@@ -69,6 +67,8 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     private Button buttonControls;
     private Button buttonControlType;
     private Button buttonFeatures;
+
+    // ------------------- GAME ---------------------- //
 
     private Button buttonMenu;
 
@@ -122,7 +122,6 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         buttonMenu.getPaint().setTypeface(Typeface.create("Arial", Typeface.NORMAL));
 
         boolean settingsCanWrite = Settings.System.canWrite(context);
-        //Log.d("Can write settings", String.valueOf(settingsCanWrite));
 
         if (!settingsCanWrite) {
             Intent intent = new Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS);
@@ -160,7 +159,6 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
             retry = false;
         }
     }
-
 
     public void update() {
 
@@ -438,12 +436,8 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     private void light() {
         brightness = Settings.System.getInt(getContext().getContentResolver(), Settings.System.SCREEN_BRIGHTNESS, 0);
         if (switchLights.isActive()) {
-//            Log.d("Light button is active", String.valueOf(switchLights.isActive()));
-//            Log.d("Brightness", String.valueOf(brightness));
-
             light = new Light(getContext());
         } else {
-//            Log.d("Light button is active", String.valueOf(switchLights.isActive()));
             if (light != null) {
                 light.close();
             }

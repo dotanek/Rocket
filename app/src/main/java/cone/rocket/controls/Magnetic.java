@@ -6,7 +6,6 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.util.Log;
 
 import cone.rocket.GameView;
 
@@ -25,13 +24,10 @@ public class Magnetic extends Activity implements SensorEventListener {
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-//        Log.e("x:", String.valueOf(event.values[0]));
-//        Log.e("y:", String.valueOf(event.values[1]));
-//        Log.e("z:", String.valueOf(event.values[2]));
-
         if (Math.abs(event.values[0]) + Math.abs(event.values[1]) + Math.abs(event.values[2]) > 800) {
-            GameView.setState(GameView.STATE.SETTINGS);
-            Log.e("haha", "hihi");
+            if (GameView.getState() == GameView.STATE.MENU) {
+                GameView.setState(GameView.STATE.SETTINGS);
+            }
         }
     }
 

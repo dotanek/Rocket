@@ -18,7 +18,6 @@ public class MainActivity extends Activity {
     private static Proximity proximity;
     private static Magnetic magnetic;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

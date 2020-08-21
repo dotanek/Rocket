@@ -24,7 +24,6 @@ public class CollisionManager {
             float distance = (float) Math.sqrt(Math.pow(ocx - rcx, 2) + Math.pow(ocy - rcy, 2));
 
             if (distance <= or + rr) {
-                Log.d("Collision", "True!");
                 return true;
             }
         }
