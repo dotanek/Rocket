@@ -270,12 +270,14 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         String highScoreToString = "";
         try (InputStream inputStream = getContext().openFileInput("highScore.txt")) {
             if (inputStream != null) {
-                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-                String receiveString = "";
                 StringBuilder stringBuilder = new StringBuilder();
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
 
-                while ((receiveString = bufferedReader.readLine()) != null) {
-                    stringBuilder.append(receiveString);
+                String data = bufferedReader.readLine();
+
+                while (data != null) {
+                    stringBuilder.append(data);
+                    data = bufferedReader.readLine();
                 }
                 highScoreToString = stringBuilder.toString();
                 highScore = Integer.parseInt(highScoreToString);
@@ -306,12 +308,14 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         String settingsToString = "";
         try (InputStream inputStream = getContext().openFileInput("settings.txt")) {
             if (inputStream != null) {
-                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-                String receiveString = "";
                 StringBuilder stringBuilder = new StringBuilder();
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
 
-                while ((receiveString = bufferedReader.readLine()) != null) {
-                    stringBuilder.append(receiveString);
+                String data = bufferedReader.readLine();
+
+                while (data != null) {
+                    stringBuilder.append(data);
+                    data = bufferedReader.readLine();
                 }
                 settingsToString = stringBuilder.toString();
 
